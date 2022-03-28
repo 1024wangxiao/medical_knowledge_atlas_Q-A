@@ -1,0 +1,27 @@
+{% extends "common/layout.html" %}
+
+
+{% block content %}
+<div class=" col-lg-8 col-lg-offset-2 ">
+    <div class=" panel panel-default ">
+        <div class=" panel-heading ">智能问答系统
+            <div class="panel-body question_wrap ">
+                <label for="username">姓名</label>
+                <input type="text" class="form-control" id="username" name="username"  placeholder="请输入您的姓名">
+                <textarea class="form-control" rows="3" placeholder="请输入您想问的问题" id="question" name="question"></textarea>
+                <button type="button" class="btn btn-success btn-block btn-lg do-question">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{%endblock%}
+
+{% block js %}
+
+<script src="{{buildStaticUrl('/js/member/qa.js')}}"></script>
+<!--<script src="{{buildStaticUrl('/js/member/vue.js')}}"></script>-->
+
+{% endblock %}

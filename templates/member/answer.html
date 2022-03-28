@@ -1,0 +1,18 @@
+{% extends "common/layout.html" %}
+
+
+{% block content %}
+<div class=" col-lg-8 col-lg-offset-2 ">
+    <div class=" panel panel-default ">
+        <div class=" panel-heading ">
+            <div class="panel-body question_wrap ">
+                <textarea class="form-control" rows="15">{{data.REPLY}}</textarea>
+                <a href="{{buildUrl('/member/QA')}}" type="button" class="btn btn-success btn-block btn-lg ">再次询问</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{%endblock%}
