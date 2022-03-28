@@ -28,7 +28,7 @@ class BiLstmCrfModel(object):
                 dtype='int32'
             )
         x = keras.layers.Masking(
-                mask_value=0
+                mask_value=0#尽最大可能减少padding最模型训练的影响
             )(inputs)
         x = keras.layers.Embedding(
                 input_dim=self.vocab_size,
@@ -37,14 +37,14 @@ class BiLstmCrfModel(object):
                 weights=self.embedding_matrix,
                 mask_zero=True
             )(x)
-        x = keras.layers.Bidirectional(
+        x = keras.layers.Bidirectional(#双向lstm层
                 keras.layers.LSTM(
-                    self.lstm_units, 
-                    return_sequences=True
+                    self.lstm_units,
+                    return_sequences=True#需要把每个字的表达作为输出
                 )
             )(x)
         x = keras.layers.TimeDistributed(
-                keras.layers.Dropout(
+                keras.layers.Dropout(#对lstm的每一个token做dropout，防止过拟合
                     0.2
                 )
             )(x)
@@ -52,9 +52,9 @@ class BiLstmCrfModel(object):
         outputs = crf(x)
         model = keras.Model(inputs=inputs, outputs=outputs)
         model.compile(
-            optimizer='adam', 
-            loss=crf.loss_function, 
-            metrics=[crf.accuracy]
+            optimizer='adam', #优化器
+            loss=crf.loss_function, #损失函数
+            metrics=[crf.accuracy]#指标，不是完整实体的卷起率，而是每个token的
             )
         print(model.summary())
 

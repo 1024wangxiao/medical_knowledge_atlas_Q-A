@@ -6,21 +6,22 @@ from keras.utils import to_categorical
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 
-class NerDataProcessor(object):
-    def __init__(self,max_len,vocab_size):
-        super(NerDataProcessor, self).__init__()
-        self.max_len = max_len
-        self.vocab_size = vocab_size
-        self.word2id = {} 
 
-        self.tags = []
-        self.tag2id = {}
-        self.id2tag = {}
-        
+class NerDataProcessor(object):
+    def __init__(self, max_len, vocab_size):
+        super(NerDataProcessor, self).__init__()
+        self.max_len = max_len  # 训练数据的最大长度
+        self.vocab_size = vocab_size  # 字典大小
+        self.word2id = {}  # 用于把每个字映射成一个数字id
+
+        self.tags = []  # 数据集里面有哪些标签，比如 B-disease是一个标签，I-disease是一个标签
+        self.tag2id = {}  # 对每个标签进行映射，模型训练需要对int类型数字进行计算。
+        self.id2tag = {}  # 数字映射到标签，为后面做预测值的解码工作。
+
         self.class_nums = 0
         self.sample_nums = 0
 
-    def read_data(self,path,is_training_data=True):
+    def read_data(self, path, is_training_data=True):
         """
         数据格式如下（分隔符为空格）：
         便 B_disease
@@ -34,12 +35,12 @@ class NerDataProcessor(object):
         y = []
         sentence = []
         labels = []
-        split_pattern = re.compile(r'[；;。，、？！\.\?,! ]')
-        with open(path,'r',encoding = 'utf8') as f:
+        split_pattern = re.compile(r'[；;。，、？！\.\?,! ]')  # 保证每个训练样本的长度不超过maxlen，尽可能的分成完整的一句。
+        with open(path, 'r', encoding='utf8') as f:
             for line in f.readlines():
-                #每行为一个字符和其tag，中间用tab或者空格隔开
+                # 每行为一个字符和其tag，中间用tab或者空格隔开
                 line = line.strip().split()
-                if(not line or len(line) < 2): 
+                if (not line or len(line) < 2):
                     X.append(sentence.copy())
                     y.append(labels.copy())
                     sentence.clear()
@@ -65,42 +66,42 @@ class NerDataProcessor(object):
 
         if is_training_data:
             self.tags = sorted(list(set(chain(*y))))
-            self.tag2id = {tag : idx + 1 for idx,tag in enumerate(self.tags)}
-            self.id2tag = {idx + 1 : tag for idx,tag in enumerate(self.tags)}
-            #将 x 进行padding的同时也需要对标签进行相应的padding
-            self.tag2id['padding'] = 0 
+            self.tag2id = {tag: idx + 1 for idx, tag in enumerate(self.tags)}
+            self.id2tag = {idx + 1: tag for idx, tag in enumerate(self.tags)}
+            # 将 x 进行padding的同时也需要对标签进行相应的padding
+            self.tag2id['padding'] = 0
             self.id2tag[0] = 'padding'
             self.class_nums = len(self.id2tag)
             self.sample_nums = len(X)
 
             vocab = list(chain(*X))
-            print("vocab lenth",len(set(vocab)))
+            print("vocab lenth", len(set(vocab)))
             print(self.id2tag)
-            vocab = Counter(vocab).most_common(self.vocab_size-2)
+            vocab = Counter(vocab).most_common(self.vocab_size - 2)
             vocab = [v[0] for v in vocab]
-            for index,word in enumerate(vocab):
+            for index, word in enumerate(vocab):
                 self.word2id[word] = index + 2
 
             # OOV 为1，padding为0
             self.word2id['padding'] = 0
             self.word2id['OOV'] = 1
 
-        return X,y
+        return X, y
 
-    def encode(self,X,y):
+    def encode(self, X, y):
         """将训练样本映射成数字，以及进行padding
         将标签进行 one-hot"""
-        X = [[self.word2id.get(word,1) for word in x] for x in X ]
-        X = pad_sequences(X,maxlen=self.max_len,value=0)
-        y = [[self.tag2id.get(tag,0) for tag in t] for t in y ]
-        y = pad_sequences(y,maxlen=self.max_len,value=0)
+        X = [[self.word2id.get(word, 1) for word in x] for x in X]
+        X = pad_sequences(X, maxlen=self.max_len, value=0)
+        y = [[self.tag2id.get(tag, 0) for tag in t] for t in y]
+        y = pad_sequences(y, maxlen=self.max_len, value=0)
 
         def label_to_one_hot(index: []):
             data = []
             for line in index:
                 data_line = []
                 for i, index in enumerate(line):
-                    line_line = [0]*self.class_nums
+                    line_line = [0] * self.class_nums
                     line_line[index] = 1
                     data_line.append(line_line)
                 data.append(data_line)
@@ -109,4 +110,4 @@ class NerDataProcessor(object):
         y = label_to_one_hot(index=y)
         print(y.shape)
 
-        return X,y
+        return X, y

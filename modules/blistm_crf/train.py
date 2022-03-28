@@ -80,7 +80,7 @@ if __name__ == '__main__':
     model.save('./checkpoint/bilstm_crf_model.h5')
 
     pred = model.predict(test_X)
-
+ ##做一个实体级别的评估，因为前面的crf.accuracy 是每个token的卷曲率，召回率，f1值
     from metrics import *
     y_true, y_pred = [],[]
 
